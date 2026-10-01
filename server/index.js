@@ -2,14 +2,13 @@ import 'dotenv/config'
 import express from 'express'
 import multer from 'multer'
 import mammoth from 'mammoth'
-import { createRequire } from 'node:module'
+import pdfParse from 'pdf-parse/lib/pdf-parse.js'
 import { GoogleGenAI } from '@google/genai'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { jobPortals, resources, resumeResources } from './resources.js'
 
 const app = express()
-const pdfParse = createRequire(import.meta.url)('pdf-parse')
 const port = Number(process.env.PORT) || 3001
 const upload = multer({
   storage: multer.memoryStorage(),
