@@ -371,4 +371,8 @@ app.use((error, _req, res, _next) => {
   res.status(status).json({ error: status === 500 ? 'Something went wrong on the server. Please try again.' : error.message })
 })
 
-app.listen(port, () => console.log(`Career toolkit API listening on http://localhost:${port}`))
+if (!process.env.VERCEL) {
+  app.listen(port, () => console.log(`Career toolkit API listening on http://localhost:${port}`))
+}
+
+export default app

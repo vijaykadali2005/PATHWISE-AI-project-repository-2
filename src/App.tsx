@@ -27,15 +27,26 @@ async function request<T>(url: string, options?: RequestInit): Promise<ApiResult
   try {
     response = await fetch(url, options)
   } catch {
-    return { error: 'Can’t reach the local API. Start the app with npm run dev and check that the backend is running.' }
+    return { error: 'Can’t reach the Pathwise API. Check your connection and confirm the API is running.' }
   }
+  const contentType = response.headers.get('content-type') || ''
+  const isJson = contentType.includes('application/json') || contentType.includes('+json')
+  if (!isJson) {
+    const status = ` (HTTP ${response.status})`
+    return {
+      error: response.ok
+        ? `The API returned a non-JSON response${status}. Check that the API deployment is configured correctly.`
+        : `The API request failed${status} and returned a non-JSON response. Check that the API function is deployed and try again.`,
+    }
+  }
+
   let body: { error?: string } & Record<string, unknown>
   try {
     body = await response.json()
   } catch {
-    return { error: 'The API returned an unreadable response. Check the backend terminal for details and try again.' }
+    return { error: `The API returned invalid JSON (HTTP ${response.status}). Please try again.` }
   }
-  if (!response.ok) return { error: body.error || 'Unable to generate the result. Please check your Gemini API configuration and try again.' }
+  if (!response.ok) return { error: body.error || `The API request failed (HTTP ${response.status}). Please try again.` }
   return { data: body as T }
 }
 

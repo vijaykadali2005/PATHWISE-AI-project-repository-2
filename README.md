@@ -13,6 +13,10 @@ A career planning and resume review app with a React frontend, Express API, and 
 
 For a production build, run `npm run build` and then `npm start`. The Express server serves the built frontend and API on port 3001.
 
+## Deploy to Vercel
+
+Import this repository into Vercel and use the Vite framework preset with the default build command (`npm run build`) and output directory (`dist`). The `api/[...path].js` function serves the existing Express API under `/api`; no separate backend host or `VITE_API_URL` is required. Add `GEMINI_API_KEY` as a server-side environment variable for each Vercel environment where AI features should be enabled. Optionally set `GEMINI_MODEL` to override the default model. Do not add either value with a `VITE_` prefix.
+
 ## Features
 
 - Career guide: skill-level estimate, role skill gaps, and a personalized 30-day plan with daily learning, exercises, time estimates, curated links, completion tracking, and a final project.
