@@ -75,7 +75,14 @@ app.use('/api', (req, res, next) => {
   next()
 })
 
-const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null
+let ai = null
+
+function getAi() {
+  if (!ai && process.env.GEMINI_API_KEY) {
+    ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  }
+  return ai
+}
 
 function fail(message, status = 400, code = 'REQUEST_ERROR') {
   const error = new Error(message)
@@ -85,11 +92,12 @@ function fail(message, status = 400, code = 'REQUEST_ERROR') {
 }
 
 async function askGemini(prompt, responseJsonSchema) {
-  if (!ai) fail('Gemini is not configured. Add GEMINI_API_KEY to your local .env file, then restart the backend.', 503, 'MISSING_API_KEY')
+  const client = getAi()
+  if (!client) fail('Gemini is not configured. Add GEMINI_API_KEY to the server environment, then try again.', 503, 'MISSING_API_KEY')
   let result
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      result = await ai.models.generateContent({
+      result = await client.models.generateContent({
         model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
         contents: prompt,
         config: { responseMimeType: 'application/json', responseJsonSchema, temperature: 0.35, maxOutputTokens: 24576 },
@@ -185,7 +193,7 @@ function portalsForRole(role) {
 }
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, aiConfigured: Boolean(ai) })
+  res.json({ ok: true, aiConfigured: Boolean(process.env.GEMINI_API_KEY) })
 })
 
 app.post('/api/career-plan', async (req, res, next) => {
